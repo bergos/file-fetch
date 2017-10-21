@@ -1,6 +1,6 @@
 {
   "name": "file-fetch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "fetch for read and write access to the local file system",
   "main": "index.js",
   "scripts": {
