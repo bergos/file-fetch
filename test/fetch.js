@@ -112,4 +112,27 @@ describe('fileFetch', () => {
       })
     })
   })
+
+  it('should support encoded URLs', () => {
+    const pathname = path.join(__dirname, 'support/Ümlaut?.txt')
+    const url = 'file://' + path.join(__dirname, 'support/') + encodeURIComponent('Ümlaut?.txt')
+
+    const body = new Readable({
+      read: () => {
+        body.push('test')
+        body.push(null)
+      }
+    })
+
+    return fileFetch(url, {
+      method: 'PUT',
+      body: body
+    }).then((res) => {
+      assert.equal(fs.readFileSync(pathname), 'test')
+
+      fs.unlinkSync(pathname)
+    }).catch(() => {
+      fs.unlinkSync(pathname)
+    })
+  })
 })

@@ -17,7 +17,7 @@ function fetch (iri, options) {
   options.method = (options.method || 'GET').toUpperCase()
   options.contentTypeLookup = options.contentTypeLookup || contentTypeLookup
 
-  const pathname = url.parse(iri).pathname
+  const pathname = decodeURIComponent(url.parse(iri).pathname)
 
   if (options.method === 'GET') {
     return Promise.resolve(response(200, fs.createReadStream(pathname), {
