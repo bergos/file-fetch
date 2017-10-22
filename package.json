@@ -25,6 +25,7 @@
   "homepage": "https://github.com/bergos/file-fetch",
   "dependencies": {
     "mime-types": "^2.1.17",
+    "node-fetch": "^1.7.3",
     "readable-error": "^1.0.0"
   },
   "devDependencies": {

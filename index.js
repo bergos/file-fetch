@@ -2,12 +2,13 @@ const contentTypeLookup = require('mime-types').contentType
 const fs = require('fs')
 const path = require('path')
 const url = require('url')
+const Headers = require('node-fetch').Headers
 const ReadableError = require('readable-error')
 
 function response (status, body, headers) {
   return {
     status: status,
-    headers: headers || {},
+    headers: new Headers(headers),
     body: body
   }
 }
@@ -39,5 +40,7 @@ function fetch (iri, options) {
     return Promise.resolve(response(405, new ReadableError(new Error('method not allowed'))))
   }
 }
+
+fetch.Headers = Headers
 
 module.exports = fetch

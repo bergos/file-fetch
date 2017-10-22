@@ -39,7 +39,7 @@ describe('fileFetch', () => {
 
   it('should set the content-type header based on the file extension', () => {
     return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
-      assert.equal(res.headers['content-type'].split(';').shift(), 'text/plain')
+      assert.equal(res.headers.get('content-type').split(';').shift(), 'text/plain')
     })
   })
 
@@ -133,6 +133,32 @@ describe('fileFetch', () => {
       fs.unlinkSync(pathname)
     }).catch(() => {
       fs.unlinkSync(pathname)
+    })
+  })
+
+  it('should return a response with headers', () => {
+    return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
+      assert(res.headers)
+      assert.equal(typeof res.headers.has, 'function')
+      assert.equal(typeof res.headers.get, 'function')
+    })
+  })
+
+  describe('.Headers', () => {
+    it('should be a constructor', () => {
+      assert.equal(typeof fileFetch.Headers, 'function')
+    })
+
+    it('should have a .has method', () => {
+      const headers = new fileFetch.Headers()
+
+      assert.equal(typeof headers.has, 'function')
+    })
+
+    it('should have a .get method', () => {
+      const headers = new fileFetch.Headers()
+
+      assert.equal(typeof headers.get, 'function')
     })
   })
 })
