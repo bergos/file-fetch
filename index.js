@@ -1,3 +1,4 @@
+const concatStream = require('concat-stream')
 const contentTypeLookup = require('mime-types').contentType
 const fs = require('fs')
 const path = require('path')
@@ -5,11 +6,26 @@ const url = require('url')
 const Headers = require('node-fetch').Headers
 const ReadableError = require('readable-error')
 
+function text (stream) {
+  return new Promise((resolve, reject) => {
+    stream.pipe(concatStream({
+      encoding: 'string'
+    }, resolve))
+    stream.on('error', reject)
+  })
+}
+
+function json (stream) {
+  return text(stream).then(text => JSON.parse(text))
+}
+
 function response (status, body, headers) {
   return {
     status: status,
     headers: new Headers(headers),
-    body: body
+    body: body,
+    text: text.bind(null, body),
+    json: json.bind(null, body)
   }
 }
 

@@ -144,6 +144,36 @@ describe('fileFetch', () => {
     })
   })
 
+  describe('.text', () => {
+    it('should be a method', () => {
+      return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
+        assert.equal(typeof res.text, 'function')
+      })
+    })
+
+    it('should return the content using a Promise', () => {
+      return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then(res => res.text()).then((text) => {
+        assert.equal(text, 'test')
+      })
+    })
+  })
+
+  describe('.json', () => {
+    it('should be a method', () => {
+      return fileFetch('file://' + path.join(__dirname, 'support/json.json')).then((res) => {
+        assert.equal(typeof res.json, 'function')
+      })
+    })
+
+    it('should return the content using a Promise', () => {
+      return fileFetch('file://' + path.join(__dirname, 'support/json.json')).then(res => res.json()).then((json) => {
+        assert.deepEqual(json, {
+          key: 'value'
+        })
+      })
+    })
+  })
+
   describe('.Headers', () => {
     it('should be a constructor', () => {
       assert.equal(typeof fileFetch.Headers, 'function')
