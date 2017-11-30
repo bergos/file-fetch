@@ -22,6 +22,7 @@ function json (stream) {
 function response (status, body, headers) {
   return {
     status: status,
+    ok: status >= 200 && status <= 299,
     headers: new Headers(headers),
     body: body,
     text: text.bind(null, body),
