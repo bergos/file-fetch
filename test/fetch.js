@@ -8,14 +8,14 @@ const Readable = require('stream').Readable
 
 describe('fileFetch', () => {
   it('should be a function', () => {
-    assert.equal(typeof fileFetch, 'function')
+    assert.strictEqual(typeof fileFetch, 'function')
   })
 
   it('should return a response with a readable stream', () => {
     return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
       assert(res.body.readable)
-      assert.equal(typeof res.body.pipe, 'function')
-      assert.equal(typeof res.body.read, 'function')
+      assert.strictEqual(typeof res.body.pipe, 'function')
+      assert.strictEqual(typeof res.body.read, 'function')
     })
   })
 
@@ -29,7 +29,7 @@ describe('fileFetch', () => {
         })
 
         res.body.on('end', () => {
-          assert.equal(content, 'test')
+          assert.strictEqual(content, 'test')
 
           resolve()
         })
@@ -39,7 +39,7 @@ describe('fileFetch', () => {
 
   it('should set the content-type header based on the file extension', () => {
     return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
-      assert.equal(res.headers.get('content-type').split(';').shift(), 'text/plain')
+      assert.strictEqual(res.headers.get('content-type').split(';').shift(), 'text/plain')
     })
   })
 
@@ -55,7 +55,7 @@ describe('fileFetch', () => {
         })
 
         res.body.on('end', () => {
-          assert.equal(content, 'test')
+          assert.strictEqual(content, 'test')
 
           resolve()
         })
@@ -77,7 +77,7 @@ describe('fileFetch', () => {
       method: 'PUT',
       body: body
     }).then((res) => {
-      assert.equal(fs.readFileSync(pathname), 'test')
+      assert.strictEqual(fs.readFileSync(pathname), 'test')
 
       fs.unlinkSync(pathname)
     }).catch(() => {
@@ -89,7 +89,7 @@ describe('fileFetch', () => {
     return fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
       method: 'PUT'
     }).then((res) => {
-      assert.equal(res.status, 406)
+      assert.strictEqual(res.status, 406)
 
       return new Promise((resolve) => {
         res.body.on('error', resolve)
@@ -103,7 +103,7 @@ describe('fileFetch', () => {
     return fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
       method: 'OPTIONS'
     }).then((res) => {
-      assert.equal(res.status, 405)
+      assert.strictEqual(res.status, 405)
 
       return new Promise((resolve) => {
         res.body.on('error', resolve)
@@ -128,7 +128,7 @@ describe('fileFetch', () => {
       method: 'PUT',
       body: body
     }).then((res) => {
-      assert.equal(fs.readFileSync(pathname), 'test')
+      assert.strictEqual(fs.readFileSync(pathname), 'test')
 
       fs.unlinkSync(pathname)
     }).catch(() => {
@@ -139,21 +139,21 @@ describe('fileFetch', () => {
   it('should return a response with headers', () => {
     return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
       assert(res.headers)
-      assert.equal(typeof res.headers.has, 'function')
-      assert.equal(typeof res.headers.get, 'function')
+      assert.strictEqual(typeof res.headers.has, 'function')
+      assert.strictEqual(typeof res.headers.get, 'function')
     })
   })
 
   describe('.text', () => {
     it('should be a method', () => {
       return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
-        assert.equal(typeof res.text, 'function')
+        assert.strictEqual(typeof res.text, 'function')
       })
     })
 
     it('should return the content using a Promise', () => {
       return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then(res => res.text()).then((text) => {
-        assert.equal(text, 'test')
+        assert.strictEqual(text, 'test')
       })
     })
   })
@@ -161,13 +161,13 @@ describe('fileFetch', () => {
   describe('.json', () => {
     it('should be a method', () => {
       return fileFetch('file://' + path.join(__dirname, 'support/json.json')).then((res) => {
-        assert.equal(typeof res.json, 'function')
+        assert.strictEqual(typeof res.json, 'function')
       })
     })
 
     it('should return the content using a Promise', () => {
       return fileFetch('file://' + path.join(__dirname, 'support/json.json')).then(res => res.json()).then((json) => {
-        assert.deepEqual(json, {
+        assert.deepStrictEqual(json, {
           key: 'value'
         })
       })
@@ -176,19 +176,19 @@ describe('fileFetch', () => {
 
   describe('.Headers', () => {
     it('should be a constructor', () => {
-      assert.equal(typeof fileFetch.Headers, 'function')
+      assert.strictEqual(typeof fileFetch.Headers, 'function')
     })
 
     it('should have a .has method', () => {
       const headers = new fileFetch.Headers()
 
-      assert.equal(typeof headers.has, 'function')
+      assert.strictEqual(typeof headers.has, 'function')
     })
 
     it('should have a .get method', () => {
       const headers = new fileFetch.Headers()
 
-      assert.equal(typeof headers.get, 'function')
+      assert.strictEqual(typeof headers.get, 'function')
     })
   })
 })
