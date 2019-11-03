@@ -1,9 +1,8 @@
-/* global describe, it */
-
 const fs = require('fs')
 const path = require('path')
 const assert = require('assert')
 const Readable = require('stream').Readable
+const { describe, it } = require('mocha')
 const fileFetch = require('..')
 
 describe('fileFetch', () => {
