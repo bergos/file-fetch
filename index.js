@@ -2,7 +2,7 @@ const concatStream = require('concat-stream')
 const contentTypeLookup = require('mime-types').contentType
 const fs = require('fs')
 const path = require('path')
-const url = require('url')
+const { URL } = require('url')
 const Headers = require('node-fetch').Headers
 const ReadableError = require('readable-error')
 
@@ -35,7 +35,7 @@ function fetch (iri, options) {
   options.method = (options.method || 'GET').toUpperCase()
   options.contentTypeLookup = options.contentTypeLookup || contentTypeLookup
 
-  const pathname = decodeURIComponent(url.parse(iri).pathname)
+  const pathname = iri.startsWith('file:') ? decodeURIComponent(new URL(iri).pathname) : iri
 
   if (options.method === 'GET') {
     return Promise.resolve(response(200, fs.createReadStream(pathname), {
