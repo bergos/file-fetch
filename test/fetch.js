@@ -63,6 +63,26 @@ describe('fileFetch', () => {
     })
   })
 
+  it('should read the file content with relative path and method GET', () => {
+    return fileFetch('./test/support/file.txt', {
+      method: 'GET'
+    }).then((res) => {
+      return new Promise((resolve) => {
+        let content = ''
+
+        res.body.on('data', (chunk) => {
+          content += chunk
+        })
+
+        res.body.on('end', () => {
+          assert.strictEqual(content, 'test')
+
+          resolve()
+        })
+      })
+    })
+  })
+
   it('should write the file content with method PUT', () => {
     const pathname = path.join(__dirname, 'support/tmp.txt')
 
