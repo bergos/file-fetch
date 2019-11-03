@@ -1,10 +1,10 @@
 /* global describe, it */
 
-const assert = require('assert')
-const fileFetch = require('..')
 const fs = require('fs')
 const path = require('path')
+const assert = require('assert')
 const Readable = require('stream').Readable
+const fileFetch = require('..')
 
 describe('fileFetch', () => {
   it('should be a function', () => {

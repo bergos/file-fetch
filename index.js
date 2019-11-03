@@ -1,8 +1,8 @@
-const concatStream = require('concat-stream')
-const contentTypeLookup = require('mime-types').contentType
 const fs = require('fs')
 const path = require('path')
 const { URL } = require('url')
+const concatStream = require('concat-stream')
+const contentTypeLookup = require('mime-types').contentType
 const Headers = require('node-fetch').Headers
 const ReadableError = require('readable-error')
 
