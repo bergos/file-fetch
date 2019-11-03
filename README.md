@@ -6,7 +6,7 @@
 
 Only the URL is required to read a file:
 
-```
+```js
 const fileFetch = require('file-fetch')
 
 fileFetch('file://etc/hosts').then((res) => {
@@ -17,7 +17,7 @@ fileFetch('file://etc/hosts').then((res) => {
 
 To write files the method `PUT` must be used and readable stream must be given as body:
 
-```
+```js
 fileFetch('file://tmp/example.log', {
   method: 'PUT',
   body: stream
