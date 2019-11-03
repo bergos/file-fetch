@@ -38,9 +38,17 @@ function fetch (iri, options) {
   const pathname = iri.startsWith('file:') ? decodeURIComponent(new URL(iri).pathname) : iri
 
   if (options.method === 'GET') {
-    return Promise.resolve(response(200, fs.createReadStream(pathname), {
-      'content-type': options.contentTypeLookup(path.extname(pathname))
-    }))
+    return new Promise((resolve) => {
+      const stream = fs.createReadStream(pathname)
+      stream.on('error', () => {
+        resolve(response(404, new ReadableError(new Error('File not found'))))
+      })
+      stream.on('open', () => {
+        resolve(response(200, stream, {
+          'content-type': options.contentTypeLookup(path.extname(pathname))
+        }))
+      })
+    })
   } else if (options.method === 'PUT') {
     return new Promise((resolve) => {
       if (!options.body) {

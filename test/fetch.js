@@ -83,6 +83,20 @@ describe('fileFetch', () => {
     })
   })
 
+  it('should give a 404 path to non-existent file (method GET)', () => {
+    return fileFetch('./test/support/nonexistent-file.txt', {
+      method: 'GET'
+    }).then((res) => {
+      assert.strictEqual(res.status, 404)
+
+      return new Promise((resolve) => {
+        res.body.on('error', resolve)
+
+        res.body.resume()
+      })
+    })
+  })
+
   it('should write the file content with method PUT', () => {
     const pathname = path.join(__dirname, 'support/tmp.txt')
 
