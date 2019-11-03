@@ -1,6 +1,7 @@
 # file-fetch
 
-`file-fetch` is a [nodeify-fetch](https://www.npmjs.com/package/nodeify-fetch) compatible fetch for read and write access to the local file system using `file://` URLs.
+`file-fetch` is a [nodeify-fetch](https://www.npmjs.com/package/nodeify-fetch) compatible fetch for read and write access to the local file system using `file://` URLs (including
+implicit ones using relative paths).
 
 ## Usage
 
