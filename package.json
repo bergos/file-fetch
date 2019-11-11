@@ -26,9 +26,6 @@
     "url": "https://github.com/bergos/file-fetch/issues"
   },
   "homepage": "https://github.com/bergos/file-fetch",
-  "engines": {
-    "node": ">= 6.0.0"
-  },
   "dependencies": {
     "concat-stream": "^2.0.0",
     "mime-types": "^2.1.24",
