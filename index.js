@@ -1,8 +1,8 @@
-const concatStream = require('concat-stream')
-const contentTypeLookup = require('mime-types').contentType
 const fs = require('fs')
 const path = require('path')
-const url = require('url')
+const { URL } = require('url')
+const concatStream = require('concat-stream')
+const contentTypeLookup = require('mime-types').contentType
 const Headers = require('node-fetch').Headers
 const ReadableError = require('readable-error')
 
@@ -35,12 +35,20 @@ function fetch (iri, options) {
   options.method = (options.method || 'GET').toUpperCase()
   options.contentTypeLookup = options.contentTypeLookup || contentTypeLookup
 
-  const pathname = decodeURIComponent(url.parse(iri).pathname)
+  const pathname = iri.startsWith('file:') ? decodeURIComponent(new URL(iri).pathname) : iri
 
   if (options.method === 'GET') {
-    return Promise.resolve(response(200, fs.createReadStream(pathname), {
-      'content-type': options.contentTypeLookup(path.extname(pathname))
-    }))
+    return new Promise((resolve) => {
+      const stream = fs.createReadStream(pathname)
+      stream.on('error', () => {
+        resolve(response(404, new ReadableError(new Error('File not found'))))
+      })
+      stream.on('open', () => {
+        resolve(response(200, stream, {
+          'content-type': options.contentTypeLookup(path.extname(pathname))
+        }))
+      })
+    })
   } else if (options.method === 'PUT') {
     return new Promise((resolve) => {
       if (!options.body) {

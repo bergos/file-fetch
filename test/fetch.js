@@ -1,10 +1,9 @@
-/* global describe, it */
-
-const assert = require('assert')
-const fileFetch = require('..')
 const fs = require('fs')
 const path = require('path')
+const assert = require('assert')
 const Readable = require('stream').Readable
+const { describe, it } = require('mocha')
+const fileFetch = require('..')
 
 describe('fileFetch', () => {
   it('should be a function', () => {
@@ -59,6 +58,40 @@ describe('fileFetch', () => {
 
           resolve()
         })
+      })
+    })
+  })
+
+  it('should read the file content with relative path and method GET', () => {
+    return fileFetch('./test/support/file.txt', {
+      method: 'GET'
+    }).then((res) => {
+      return new Promise((resolve) => {
+        let content = ''
+
+        res.body.on('data', (chunk) => {
+          content += chunk
+        })
+
+        res.body.on('end', () => {
+          assert.strictEqual(content, 'test')
+
+          resolve()
+        })
+      })
+    })
+  })
+
+  it('should give a 404 path to non-existent file (method GET)', () => {
+    return fileFetch('./test/support/nonexistent-file.txt', {
+      method: 'GET'
+    }).then((res) => {
+      assert.strictEqual(res.status, 404)
+
+      return new Promise((resolve) => {
+        res.body.on('error', resolve)
+
+        res.body.resume()
       })
     })
   })
