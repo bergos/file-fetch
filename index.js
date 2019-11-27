@@ -6,6 +6,22 @@ const contentTypeLookup = require('mime-types').contentType
 const Headers = require('node-fetch').Headers
 const ReadableError = require('readable-error')
 
+function decodeIRI (iri) {
+  // IRIs without file scheme are used directly
+  if (!iri.startsWith('file:')) {
+    return iri
+  }
+
+  const pathname = decodeURIComponent(new URL(iri).pathname)
+
+  // remove the leading slash for IRIs with file scheme and relative path
+  if (!iri.startsWith('file:/')) {
+    return pathname.split('/').slice(1).join('/')
+  }
+
+  return pathname
+}
+
 function text (stream) {
   return new Promise((resolve, reject) => {
     stream.pipe(concatStream({
@@ -35,7 +51,7 @@ function fetch (iri, options) {
   options.method = (options.method || 'GET').toUpperCase()
   options.contentTypeLookup = options.contentTypeLookup || contentTypeLookup
 
-  const pathname = iri.startsWith('file:') ? decodeURIComponent(new URL(iri).pathname) : iri
+  const pathname = decodeIRI(iri)
 
   if (options.method === 'GET') {
     return new Promise((resolve) => {
