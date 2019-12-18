@@ -116,6 +116,34 @@ describe('fileFetch', () => {
     })
   })
 
+  it('should return a 200 status but no body with method HEAD and existing file', () => {
+    const pathname = path.join(__dirname, 'support/file.txt')
+
+    return fileFetch('file://' + pathname, {
+      method: 'HEAD'
+    }).then((res) => {
+      assert.strictEqual(res.status, 200)
+      res.body.on('data', (chunk) => {
+        assert(false);
+      })
+      return new Promise((resolve) => {
+        res.body.on('end', () => {
+          resolve()
+        })
+      })
+    })
+  })
+
+  it('should return a 404 status with method HEAD and non-existent file', () => {
+    const pathname = path.join(__dirname, 'support/missing.txt')
+
+    return fileFetch('file://' + pathname, {
+      method: 'HEAD'
+    }).then((res) => {
+      assert.strictEqual(res.status, 404)
+    })
+  })
+
   it('should write the file content with method PUT', () => {
     const pathname = path.join(__dirname, 'support/tmp.txt')
 
