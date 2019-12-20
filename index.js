@@ -83,11 +83,10 @@ async function fetch (iri, options) {
       'content-type': options.contentTypeLookup(path.extname(pathname))
     })
   } else if (options.method === 'PUT') {
+    if (!options.body) {
+      return response(406, new ReadableError(new Error('body required')))
+    }
     return new Promise((resolve) => {
-      if (!options.body) {
-        return resolve(response(406, new ReadableError(new Error('body required'))))
-      }
-
       options.body.pipe(fs.createWriteStream(pathname)).on('finish', () => {
         resolve(response(201))
       }).on('error', (err) => {
