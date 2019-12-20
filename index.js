@@ -5,7 +5,7 @@ const { URL } = require('url')
 const { Readable } = require('stream')
 const concatStream = require('concat-stream')
 const contentTypeLookup = require('mime-types').contentType
-const Headers = require('node-fetch').Headers
+const { Headers } = require('node-fetch')
 const ReadableError = require('readable-error')
 
 const access = promisify(fs.access)

@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const assert = require('assert')
-const Readable = require('stream').Readable
+const { Readable } = require('stream')
 const { describe, it } = require('mocha')
 const fileFetch = require('..')
 
