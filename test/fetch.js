@@ -124,7 +124,7 @@ describe('fileFetch', () => {
     }).then((res) => {
       assert.strictEqual(res.status, 200)
       res.body.on('data', (chunk) => {
-        assert(false);
+        assert(false)
       })
       return new Promise((resolve) => {
         res.body.on('end', () => {

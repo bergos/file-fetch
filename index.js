@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { URL } = require('url')
-const {Readable} = require('stream')
+const { Readable } = require('stream')
 const concatStream = require('concat-stream')
 const contentTypeLookup = require('mime-types').contentType
 const Headers = require('node-fetch').Headers
@@ -72,8 +72,8 @@ function fetch (iri, options) {
       if (!exists) {
         resolve(response(404, new ReadableError(new Error('File not found'))))
       } else {
-        const stream = new Readable({read() {}});
-        stream.push(null);
+        const stream = new Readable({ read () {} })
+        stream.push(null)
         resolve(response(200, stream, {
           'content-type': options.contentTypeLookup(path.extname(pathname))
         }))
