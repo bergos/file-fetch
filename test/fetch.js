@@ -10,141 +10,132 @@ describe('fileFetch', () => {
     assert.strictEqual(typeof fileFetch, 'function')
   })
 
-  it('should return a response with a readable stream', () => {
-    return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
-      assert(res.body.readable)
-      assert.strictEqual(typeof res.body.pipe, 'function')
-      assert.strictEqual(typeof res.body.read, 'function')
-    })
+  it('should return a response with a readable stream', async () => {
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'))
+    assert(res.body.readable)
+    assert.strictEqual(typeof res.body.pipe, 'function')
+    assert.strictEqual(typeof res.body.read, 'function')
   })
 
-  it('should read the file content if now method is given', () => {
-    return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
-      return new Promise((resolve) => {
-        let content = ''
+  it('should read the file content if now method is given', async () => {
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'))
+    return new Promise((resolve) => {
+      let content = ''
 
-        res.body.on('data', (chunk) => {
-          content += chunk
-        })
+      res.body.on('data', (chunk) => {
+        content += chunk
+      })
 
-        res.body.on('end', () => {
-          assert.strictEqual(content, 'test')
+      res.body.on('end', () => {
+        assert.strictEqual(content, 'test')
 
-          resolve()
-        })
+        resolve()
       })
     })
   })
 
-  it('should set the content-type header based on the file extension', () => {
-    return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
-      assert.strictEqual(res.headers.get('content-type').split(';').shift(), 'text/plain')
-    })
+  it('should set the content-type header based on the file extension', async () => {
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'))
+    assert.strictEqual(res.headers.get('content-type').split(';').shift(), 'text/plain')
   })
 
-  it('should read the file content with method GET', () => {
-    return fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
+  it('should read the file content with method GET', async () => {
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
       method: 'GET'
-    }).then((res) => {
-      return new Promise((resolve) => {
-        let content = ''
+    })
+    return new Promise((resolve) => {
+      let content = ''
 
-        res.body.on('data', (chunk) => {
-          content += chunk
-        })
+      res.body.on('data', (chunk) => {
+        content += chunk
+      })
 
-        res.body.on('end', () => {
-          assert.strictEqual(content, 'test')
+      res.body.on('end', () => {
+        assert.strictEqual(content, 'test')
 
-          resolve()
-        })
+        resolve()
       })
     })
   })
 
-  it('should read the file content with relative path and method GET', () => {
-    return fileFetch('./test/support/file.txt', {
+  it('should read the file content with relative path and method GET', async () => {
+    const res = await fileFetch('./test/support/file.txt', {
       method: 'GET'
-    }).then((res) => {
-      return new Promise((resolve) => {
-        let content = ''
+    })
+    return new Promise((resolve) => {
+      let content = ''
 
-        res.body.on('data', (chunk) => {
-          content += chunk
-        })
+      res.body.on('data', (chunk) => {
+        content += chunk
+      })
 
-        res.body.on('end', () => {
-          assert.strictEqual(content, 'test')
+      res.body.on('end', () => {
+        assert.strictEqual(content, 'test')
 
-          resolve()
-        })
+        resolve()
       })
     })
   })
 
-  it('should read the file content with relative URL and method GET', () => {
-    return fileFetch('file:./test/support/file.txt', {
+  it('should read the file content with relative URL and method GET', async () => {
+    const res = await fileFetch('file:./test/support/file.txt', {
       method: 'GET'
-    }).then((res) => {
-      return new Promise((resolve) => {
-        let content = ''
+    })
+    return new Promise((resolve) => {
+      let content = ''
 
-        res.body.on('data', (chunk) => {
-          content += chunk
-        })
+      res.body.on('data', (chunk) => {
+        content += chunk
+      })
 
-        res.body.on('end', () => {
-          assert.strictEqual(content, 'test')
+      res.body.on('end', () => {
+        assert.strictEqual(content, 'test')
 
-          resolve()
-        })
+        resolve()
       })
     })
   })
 
-  it('should give a 404 path to non-existent file (method GET)', () => {
-    return fileFetch('./test/support/nonexistent-file.txt', {
+  it('should give a 404 path to non-existent file (method GET)', async () => {
+    const res = await fileFetch('./test/support/nonexistent-file.txt', {
       method: 'GET'
-    }).then((res) => {
-      assert.strictEqual(res.status, 404)
+    })
+    assert.strictEqual(res.status, 404)
 
-      return new Promise((resolve) => {
-        res.body.on('error', resolve)
+    return new Promise((resolve) => {
+      res.body.on('error', resolve)
 
-        res.body.resume()
-      })
+      res.body.resume()
     })
   })
 
-  it('should return a 200 status but no body with method HEAD and existing file', () => {
+  it('should return a 200 status but no body with method HEAD and existing file', async () => {
     const pathname = path.join(__dirname, 'support/file.txt')
 
-    return fileFetch('file://' + pathname, {
+    const res = await fileFetch('file://' + pathname, {
       method: 'HEAD'
-    }).then((res) => {
-      assert.strictEqual(res.status, 200)
-      res.body.on('data', (chunk) => {
-        assert(false)
-      })
-      return new Promise((resolve) => {
-        res.body.on('end', () => {
-          resolve()
-        })
+    })
+    assert.strictEqual(res.status, 200)
+    res.body.on('data', (chunk) => {
+      assert(false)
+    })
+    return new Promise((resolve) => {
+      res.body.on('end', () => {
+        resolve()
       })
     })
   })
 
-  it('should return a 404 status with method HEAD and non-existent file', () => {
+  it('should return a 404 status with method HEAD and non-existent file', async () => {
     const pathname = path.join(__dirname, 'support/missing.txt')
 
-    return fileFetch('file://' + pathname, {
+    const res = await fileFetch('file://' + pathname, {
       method: 'HEAD'
-    }).then((res) => {
-      assert.strictEqual(res.status, 404)
     })
+    assert.strictEqual(res.status, 404)
   })
 
-  it('should write the file content with method PUT', () => {
+  it('should write the file content with method PUT', async () => {
     const pathname = path.join(__dirname, 'support/tmp.txt')
 
     const body = new Readable({
@@ -154,47 +145,45 @@ describe('fileFetch', () => {
       }
     })
 
-    return fileFetch('file://' + pathname, {
-      method: 'PUT',
-      body: body
-    }).then((res) => {
-      assert.strictEqual(fs.readFileSync(pathname), 'test')
-
-      fs.unlinkSync(pathname)
-    }).catch(() => {
-      fs.unlinkSync(pathname)
-    })
+    try {
+      await fileFetch('file://' + pathname, {
+        method: 'PUT',
+        body: body
+      })
+      assert.strictEqual(fs.readFileSync(pathname, 'utf8'), 'test')
+    } catch (err) {
+      assert(false)
+    }
+    fs.unlinkSync(pathname)
   })
 
-  it('should throw an error if the method is PUT, but no body is given', () => {
-    return fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
+  it('should throw an error if the method is PUT, but no body is given', async () => {
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
       method: 'PUT'
-    }).then((res) => {
-      assert.strictEqual(res.status, 406)
+    })
+    assert.strictEqual(res.status, 406)
 
-      return new Promise((resolve) => {
-        res.body.on('error', resolve)
+    return new Promise((resolve) => {
+      res.body.on('error', resolve)
 
-        res.body.resume()
-      })
+      res.body.resume()
     })
   })
 
-  it('should throw an error if the given method is unknown', () => {
-    return fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
+  it('should throw an error if the given method is unknown', async () => {
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
       method: 'OPTIONS'
-    }).then((res) => {
-      assert.strictEqual(res.status, 405)
+    })
+    assert.strictEqual(res.status, 405)
 
-      return new Promise((resolve) => {
-        res.body.on('error', resolve)
+    return new Promise((resolve) => {
+      res.body.on('error', resolve)
 
-        res.body.resume()
-      })
+      res.body.resume()
     })
   })
 
-  it('should support encoded URLs', () => {
+  it('should support encoded URLs', async () => {
     const pathname = path.join(__dirname, 'support/Ümlaut?.txt')
     const url = 'file://' + path.join(__dirname, 'support/') + encodeURIComponent('Ümlaut?.txt')
 
@@ -205,52 +194,49 @@ describe('fileFetch', () => {
       }
     })
 
-    return fileFetch(url, {
-      method: 'PUT',
-      body: body
-    }).then((res) => {
-      assert.strictEqual(fs.readFileSync(pathname), 'test')
-
-      fs.unlinkSync(pathname)
-    }).catch(() => {
-      fs.unlinkSync(pathname)
-    })
+    try {
+      await fileFetch(url, {
+        method: 'PUT',
+        body: body
+      })
+      assert.strictEqual(fs.readFileSync(pathname, 'utf8'), 'test')
+    } catch (error) {
+      assert(false)
+    }
+    fs.unlinkSync(pathname)
   })
 
-  it('should return a response with headers', () => {
-    return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
-      assert(res.headers)
-      assert.strictEqual(typeof res.headers.has, 'function')
-      assert.strictEqual(typeof res.headers.get, 'function')
-    })
+  it('should return a response with headers', async () => {
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'))
+    assert(res.headers)
+    assert.strictEqual(typeof res.headers.has, 'function')
+    assert.strictEqual(typeof res.headers.get, 'function')
   })
 
   describe('.text', () => {
-    it('should be a method', () => {
-      return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then((res) => {
-        assert.strictEqual(typeof res.text, 'function')
-      })
+    it('should be a method', async () => {
+      const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'))
+      assert.strictEqual(typeof res.text, 'function')
     })
 
-    it('should return the content using a Promise', () => {
-      return fileFetch('file://' + path.join(__dirname, 'support/file.txt')).then(res => res.text()).then((text) => {
-        assert.strictEqual(text, 'test')
-      })
+    it('should return the content using a Promise', async () => {
+      const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'))
+      const text = await res.text()
+      assert.strictEqual(text, 'test')
     })
   })
 
   describe('.json', () => {
-    it('should be a method', () => {
-      return fileFetch('file://' + path.join(__dirname, 'support/json.json')).then((res) => {
-        assert.strictEqual(typeof res.json, 'function')
-      })
+    it('should be a method', async () => {
+      const res = await fileFetch('file://' + path.join(__dirname, 'support/json.json'))
+      assert.strictEqual(typeof res.json, 'function')
     })
 
-    it('should return the content using a Promise', () => {
-      return fileFetch('file://' + path.join(__dirname, 'support/json.json')).then(res => res.json()).then((json) => {
-        assert.deepStrictEqual(json, {
-          key: 'value'
-        })
+    it('should return the content using a Promise', async () => {
+      const res = await fileFetch('file://' + path.join(__dirname, 'support/json.json'))
+      const json = await res.json()
+      assert.deepStrictEqual(json, {
+        key: 'value'
       })
     })
   })
