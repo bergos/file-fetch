@@ -1,11 +1,15 @@
 const fs = require('fs')
 const path = require('path')
+const { promisify } = require('util')
 const { URL } = require('url')
 const { Readable } = require('stream')
 const concatStream = require('concat-stream')
 const contentTypeLookup = require('mime-types').contentType
 const Headers = require('node-fetch').Headers
 const ReadableError = require('readable-error')
+
+const access = promisify(fs.access)
+const { R_OK } = fs.constants
 
 function decodeIRI (iri) {
   // IRIs without file scheme are used directly
@@ -32,8 +36,9 @@ function text (stream) {
   })
 }
 
-function json (stream) {
-  return text(stream).then(text => JSON.parse(text))
+async function json (stream) {
+  const txt = await text(stream)
+  return JSON.parse(txt)
 }
 
 function response (status, body, headers) {
@@ -47,7 +52,7 @@ function response (status, body, headers) {
   }
 }
 
-function fetch (iri, options) {
+async function fetch (iri, options) {
   options = options || {}
   options.method = (options.method || 'GET').toUpperCase()
   options.contentTypeLookup = options.contentTypeLookup || contentTypeLookup
@@ -67,17 +72,15 @@ function fetch (iri, options) {
       })
     })
   } else if (options.method === 'HEAD') {
-    return new Promise((resolve) => {
-      const exists = fs.existsSync(pathname)
-      if (!exists) {
-        resolve(response(404, new ReadableError(new Error('File not found'))))
-      } else {
-        const stream = new Readable({ read () {} })
-        stream.push(null)
-        resolve(response(200, stream, {
-          'content-type': options.contentTypeLookup(path.extname(pathname))
-        }))
-      }
+    try {
+      await access(pathname, R_OK)
+    } catch (error) {
+      return response(404, new ReadableError(new Error('File not found')))
+    }
+    const stream = new Readable({ read () {} })
+    stream.push(null)
+    return response(200, stream, {
+      'content-type': options.contentTypeLookup(path.extname(pathname))
     })
   } else if (options.method === 'PUT') {
     return new Promise((resolve) => {
@@ -92,7 +95,7 @@ function fetch (iri, options) {
       })
     })
   } else {
-    return Promise.resolve(response(405, new ReadableError(new Error('method not allowed'))))
+    return response(405, new ReadableError(new Error('method not allowed')))
   }
 }
 
