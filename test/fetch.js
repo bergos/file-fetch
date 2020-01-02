@@ -170,6 +170,26 @@ describe('fileFetch', () => {
     })
   })
 
+  it('should throw an error if the method is PUT, but the file is not writable', async () => {
+    const body = new Readable({
+      read: () => {
+        body.push('test')
+        body.push(null)
+      }
+    })
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/file-nonwritable.txt'), {
+      method: 'PUT',
+      body: body
+    })
+    assert.strictEqual(res.status, 500)
+
+    return new Promise((resolve) => {
+      res.body.on('error', resolve)
+
+      res.body.resume()
+    })
+  })
+
   it('should throw an error if the given method is unknown', async () => {
     const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
       method: 'OPTIONS'
