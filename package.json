@@ -6,6 +6,12 @@
   "scripts": {
     "test": "standard && nyc mocha"
   },
+  "nyc": {
+    "reporter": [
+      "html",
+      "text"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/bergos/file-fetch.git"
