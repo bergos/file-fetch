@@ -3,8 +3,8 @@ const path = require('path')
 const { promisify } = require('util')
 const { URL } = require('url')
 const { Readable } = require('stream')
-const concatStream = require('concat-stream')
-const contentTypeLookup = require('mime-types').contentType
+const getStream = require('get-stream')
+const { contentType } = require('mime-types')
 const { Headers } = require('node-fetch')
 const ReadableError = require('readable-error')
 
@@ -27,75 +27,68 @@ function decodeIRI (iri) {
   return pathname
 }
 
-function text (stream) {
-  return new Promise((resolve, reject) => {
-    stream.pipe(concatStream({
-      encoding: 'string'
-    }, resolve))
-    stream.on('error', reject)
-  })
-}
-
-async function json (stream) {
-  const txt = await text(stream)
-  return JSON.parse(txt)
-}
-
 function response (status, body, headers) {
   return {
     status: status,
     ok: status >= 200 && status <= 299,
     headers: new Headers(headers),
     body: body,
-    text: text.bind(null, body),
-    json: json.bind(null, body)
+    text: async () => getStream(body),
+    json: async () => JSON.parse(await getStream(body))
   }
 }
 
-async function fetch (iri, options) {
-  options = options || {}
-  options.method = (options.method || 'GET').toUpperCase()
-  options.contentTypeLookup = options.contentTypeLookup || contentTypeLookup
+async function fetch (iri, { body, contentTypeLookup = contentType, method = 'GET' } = {}) {
+  method = method.toUpperCase()
 
   const pathname = decodeIRI(iri)
 
-  if (options.method === 'GET') {
+  if (method === 'GET') {
     return new Promise((resolve) => {
       const stream = fs.createReadStream(pathname)
+
       stream.on('error', () => {
         resolve(response(404, new ReadableError(new Error('File not found'))))
       })
+
       stream.on('open', () => {
         resolve(response(200, stream, {
-          'content-type': options.contentTypeLookup(path.extname(pathname))
+          'content-type': contentTypeLookup(path.extname(pathname))
         }))
       })
     })
-  } else if (options.method === 'HEAD') {
+  }
+
+  if (method === 'HEAD') {
     try {
       await access(pathname, R_OK)
     } catch (error) {
       return response(404, new ReadableError(new Error('File not found')))
     }
+
     const stream = new Readable({ read () {} })
     stream.push(null)
+
     return response(200, stream, {
-      'content-type': options.contentTypeLookup(path.extname(pathname))
+      'content-type': contentTypeLookup(path.extname(pathname))
     })
-  } else if (options.method === 'PUT') {
-    if (!options.body) {
+  }
+
+  if (method === 'PUT') {
+    if (!body) {
       return response(406, new ReadableError(new Error('body required')))
     }
+
     return new Promise((resolve) => {
-      options.body.pipe(fs.createWriteStream(pathname)).on('finish', () => {
+      body.pipe(fs.createWriteStream(pathname)).on('finish', () => {
         resolve(response(201))
       }).on('error', (err) => {
         resolve(response(500, new ReadableError(err)))
       })
     })
-  } else {
-    return response(405, new ReadableError(new Error('method not allowed')))
   }
+
+  return response(405, new ReadableError(new Error('method not allowed')))
 }
 
 fetch.Headers = Headers
