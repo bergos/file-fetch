@@ -4,7 +4,7 @@
   "description": "fetch for read and write access to the local file system",
   "main": "index.js",
   "scripts": {
-    "test": "standard && mocha"
+    "test": "standard && nyc mocha"
   },
   "repository": {
     "type": "git",
@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "mocha": "^6.2.2",
+    "nyc": "^15.0.0",
     "standard": "^14.3.1"
   }
 }
