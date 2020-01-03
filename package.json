@@ -4,13 +4,7 @@
   "description": "fetch for read and write access to the local file system",
   "main": "index.js",
   "scripts": {
-    "test": "standard && nyc mocha"
-  },
-  "nyc": {
-    "reporter": [
-      "html",
-      "text"
-    ]
+    "test": "standard && nyc --reporter=lcov --reporter=text mocha"
   },
   "repository": {
     "type": "git",
