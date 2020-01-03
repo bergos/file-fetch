@@ -66,7 +66,7 @@ async function fetch (iri, { body, contentTypeLookup = contentType, method = 'GE
       return response(404, new ReadableError(new Error('File not found')))
     }
 
-    const stream = new Readable({ read () {} })
+    const stream = new Readable()
     stream.push(null)
 
     return response(200, stream, {
