@@ -170,14 +170,14 @@ describe('fileFetch', () => {
     })
   })
 
-  it('should throw an error if the method is PUT, but the file is not writable', async () => {
+  it('should throw an error if the method is PUT, but the "file" is a directory', async () => {
     const body = new Readable({
       read: () => {
         body.push('test')
         body.push(null)
       }
     })
-    const res = await fileFetch('file://' + path.join(__dirname, 'support/file-nonwritable.txt'), {
+    const res = await fileFetch('file://' + path.join(__dirname, 'support'), {
       method: 'PUT',
       body: body
     })
