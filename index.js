@@ -42,6 +42,7 @@ async function fetch (iri, { body, contentTypeLookup = contentType, method = 'GE
   method = method.toUpperCase()
 
   const pathname = decodeIRI(iri)
+  const extension = path.extname(pathname)
 
   if (method === 'GET') {
     return new Promise((resolve) => {
@@ -53,7 +54,7 @@ async function fetch (iri, { body, contentTypeLookup = contentType, method = 'GE
 
       stream.on('open', () => {
         resolve(response(200, stream, {
-          'content-type': contentTypeLookup(path.extname(pathname))
+          'content-type': contentTypeLookup(extension) || contentType(extension)
         }))
       })
     })
@@ -70,7 +71,7 @@ async function fetch (iri, { body, contentTypeLookup = contentType, method = 'GE
     stream.push(null)
 
     return response(200, stream, {
-      'content-type': contentTypeLookup(path.extname(pathname))
+      'content-type': contentTypeLookup(extension) || contentType(extension)
     })
   }
 
