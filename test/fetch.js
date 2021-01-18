@@ -39,6 +39,30 @@ describe('fileFetch', () => {
     assert.strictEqual(res.headers.get('content-type').split(';').shift(), 'text/plain')
   })
 
+  it('should call user content type lookup', async () => {
+    function contentTypeLookup () {
+      return 'application/ld+json'
+    }
+
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/json.json'), {
+      contentTypeLookup
+    })
+
+    assert.strictEqual(res.headers.get('content-type').split(';').shift(), 'application/ld+json')
+  })
+
+  it('uses default content type lookup when override does not return', async () => {
+    function contentTypeLookup () {
+      return undefined
+    }
+
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/json.json'), {
+      contentTypeLookup
+    })
+
+    assert.strictEqual(res.headers.get('content-type').split(';').shift(), 'application/json')
+  })
+
   it('should read the file content with method GET', async () => {
     const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
       method: 'GET'
