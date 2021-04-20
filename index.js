@@ -1,7 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 const { promisify } = require('util')
-const { URL } = require('url')
 const { Readable } = require('stream')
 const getStream = require('get-stream')
 const { contentType } = require('mime-types')
