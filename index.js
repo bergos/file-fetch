@@ -9,17 +9,17 @@ const ReadableError = require('readable-error')
 
 const { R_OK } = fs.constants
 
-function decodeIRI (iri) {
+function decodeIRI (iri, baseURL) {
   // IRIs without file scheme are used directly
   if (!iri.startsWith('file:')) {
-    return iri
+    return path.join(baseURL, iri)
   }
 
   const pathname = decodeURIComponent(new URL(iri).pathname)
 
   // remove the leading slash for IRIs with file scheme and relative path
   if (!iri.startsWith('file:/')) {
-    return pathname.split('/').slice(1).join('/')
+    return './' + (path.join(baseURL, '.' + pathname))
   }
 
   return pathname
@@ -36,60 +36,66 @@ function response (status, body, headers) {
   }
 }
 
-async function fetch (iri, { body, contentTypeLookup = contentType, method = 'GET' } = {}) {
-  method = method.toUpperCase()
+function create (baseURL = '') {
+  return async function fetch (iri, { body, contentTypeLookup = contentType, method = 'GET' } = {}) {
+    method = method.toUpperCase()
 
-  const pathname = decodeIRI(iri)
-  const extension = path.extname(pathname)
+    const pathname = decodeIRI(iri, baseURL)
+    const extension = path.extname(pathname)
 
-  if (method === 'GET') {
-    return new Promise((resolve) => {
-      const stream = fs.createReadStream(pathname)
+    if (method === 'GET') {
+      return new Promise((resolve) => {
+        const stream = fs.createReadStream(pathname)
 
-      stream.on('error', () => {
-        resolve(response(404, new ReadableError(new Error('File not found'))))
+        stream.on('error', () => {
+          resolve(response(404, new ReadableError(new Error('File not found'))))
+        })
+
+        stream.on('open', () => {
+          resolve(response(200, stream, {
+            'content-type': contentTypeLookup(extension) || contentType(extension)
+          }))
+        })
       })
-
-      stream.on('open', () => {
-        resolve(response(200, stream, {
-          'content-type': contentTypeLookup(extension) || contentType(extension)
-        }))
-      })
-    })
-  }
-
-  if (method === 'HEAD') {
-    try {
-      await access(pathname, R_OK)
-    } catch (error) {
-      return response(404, new ReadableError(new Error('File not found')))
     }
 
-    const stream = new Readable()
-    stream.push(null)
+    if (method === 'HEAD') {
+      try {
+        await access(pathname, R_OK)
+      } catch (error) {
+        return response(404, new ReadableError(new Error('File not found')))
+      }
 
-    return response(200, stream, {
-      'content-type': contentTypeLookup(extension) || contentType(extension)
-    })
-  }
+      const stream = new Readable()
+      stream.push(null)
 
-  if (method === 'PUT') {
-    if (!body) {
-      return response(406, new ReadableError(new Error('body required')))
+      return response(200, stream, {
+        'content-type': contentTypeLookup(extension) || contentType(extension)
+      })
     }
 
-    return new Promise((resolve) => {
-      body.pipe(fs.createWriteStream(pathname)).on('finish', () => {
-        resolve(response(201))
-      }).on('error', (err) => {
-        resolve(response(500, new ReadableError(err)))
-      })
-    })
-  }
+    if (method === 'PUT') {
+      if (!body) {
+        return response(406, new ReadableError(new Error('body required')))
+      }
 
-  return response(405, new ReadableError(new Error('method not allowed')))
+      return new Promise((resolve) => {
+        body.pipe(fs.createWriteStream(pathname)).on('finish', () => {
+          resolve(response(201))
+        }).on('error', (err) => {
+          resolve(response(500, new ReadableError(err)))
+        })
+      })
+    }
+
+    return response(405, new ReadableError(new Error('method not allowed')))
+  }
 }
 
+const fetch = create()
+
 fetch.Headers = Headers
+
+fetch.create = create
 
 module.exports = fetch
