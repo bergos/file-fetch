@@ -9,17 +9,17 @@ const ReadableError = require('readable-error')
 
 const { R_OK } = fs.constants
 
-function decodeIRI (iri, baseURL) {
+function decodeIRI (iri, baseDir) {
   // IRIs without file scheme are used directly
   if (!iri.startsWith('file:')) {
-    return path.join(baseURL, iri)
+    return path.join(baseDir, iri)
   }
 
   const pathname = decodeURIComponent(new URL(iri).pathname)
 
   // remove the leading slash for IRIs with file scheme and relative path
   if (!iri.startsWith('file:/')) {
-    return './' + (path.join(baseURL, '.' + pathname))
+    return './' + (path.join(baseDir, '.' + pathname))
   }
 
   return pathname
@@ -36,11 +36,11 @@ function response (status, body, headers) {
   }
 }
 
-function create (baseURL = '') {
+function create ({ baseDir = '' } = {}) {
   return async function fetch (iri, { body, contentTypeLookup = contentType, method = 'GET' } = {}) {
     method = method.toUpperCase()
 
-    const pathname = decodeIRI(iri, baseURL)
+    const pathname = decodeIRI(iri, baseDir)
     const extension = path.extname(pathname)
 
     if (method === 'GET') {

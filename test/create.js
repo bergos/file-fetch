@@ -9,7 +9,7 @@ describe('create', () => {
   })
 
   it('should read the file content with relative path and method GET', async () => {
-    const fetch = fileFetch.create('test')
+    const fetch = fileFetch.create({ baseDir: 'test' })
     const res = await fetch('./support/file.txt', {
       method: 'GET'
     })
@@ -29,15 +29,31 @@ describe('create', () => {
   })
 
   it('should return a response with a readable stream', async () => {
-    const fetch = fileFetch.create('test')
-    const res = await fetch('file://' + path.join(__dirname, 'support/file.txt'))
+    const fetch = fileFetch.create({ baseDir: 'ignoredForAbsolute' })
+    const res = await fetch(
+      'file://' + path.join(__dirname, 'support/file.txt')
+    )
     assert(res.body.readable)
     assert.strictEqual(typeof res.body.pipe, 'function')
     assert.strictEqual(typeof res.body.read, 'function')
+
+    return new Promise((resolve) => {
+      let content = ''
+
+      res.body.on('data', (chunk) => {
+        content += chunk
+      })
+
+      res.body.on('end', () => {
+        assert.strictEqual(content, 'test')
+
+        resolve()
+      })
+    })
   })
 
   it('should read the file content with relative URL and method GET', async () => {
-    const fetch = fileFetch.create('test')
+    const fetch = fileFetch.create({ baseDir: 'test' })
     const res = await fetch('file:./support/file.txt', {
       method: 'GET'
     })
