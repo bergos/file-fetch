@@ -150,6 +150,28 @@ describe('fileFetch', () => {
     })
   })
 
+  it('should return a 200 status but no body with method HEAD and existing file (fallback to contentType)', async () => {
+    function contentTypeLookup () {
+      return undefined
+    }
+
+    const pathname = path.join(__dirname, 'support/file.txt')
+
+    const res = await fileFetch('file://' + pathname, {
+      method: 'HEAD',
+      contentTypeLookup
+    })
+    assert.strictEqual(res.status, 200)
+    res.body.on('data', (chunk) => {
+      assert(false)
+    })
+    return new Promise((resolve) => {
+      res.body.on('end', () => {
+        resolve()
+      })
+    })
+  })
+
   it('should return a 404 status with method HEAD and non-existent file', async () => {
     const pathname = path.join(__dirname, 'support/missing.txt')
 

@@ -1,14 +1,12 @@
 const fs = require('fs')
+const { access } = require('fs/promises')
 const path = require('path')
-const { promisify } = require('util')
-const { URL } = require('url')
 const { Readable } = require('stream')
 const getStream = require('get-stream')
 const { contentType } = require('mime-types')
 const { Headers } = require('node-fetch')
 const ReadableError = require('readable-error')
 
-const access = promisify(fs.access)
 const { R_OK } = fs.constants
 
 function decodeIRI (iri) {
