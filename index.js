@@ -1,13 +1,16 @@
+/* global URL */
+
 const fs = require('fs')
-const { access } = require('fs/promises')
 const path = require('path')
-const { Readable } = require('stream')
+const { promisify } = require('util')
 const getStream = require('get-stream')
 const { contentType } = require('mime-types')
 const { Headers } = require('node-fetch')
 const ReadableError = require('readable-error')
+const { Readable } = require('readable-stream')
 
 const { R_OK } = fs.constants
+const access = promisify(fs.access)
 
 function decodeIRI (iri, baseDir, baseURL) {
   // IRIs without file scheme are used directly
