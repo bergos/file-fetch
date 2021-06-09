@@ -11,6 +11,7 @@ const { Readable } = require('readable-stream')
 
 const { R_OK } = fs.constants
 const access = promisify(fs.access)
+const stat = promisify(fs.stat)
 
 function decodeIRI (iri, baseDir, baseURL) {
   // IRIs without file scheme are used directly
@@ -27,6 +28,14 @@ function decodeIRI (iri, baseDir, baseURL) {
   }
 
   return pathname
+}
+
+async function silentFileSize (pathname) {
+  try {
+    return (await stat(pathname)).size
+  } catch (err) {
+    return null
+  }
 }
 
 function response (status, body, headers) {
@@ -48,6 +57,8 @@ function create ({ baseDir = '', baseURL } = {}) {
     const extension = path.extname(pathname)
 
     if (method === 'GET') {
+      const size = await silentFileSize(pathname)
+
       return new Promise((resolve) => {
         const stream = fs.createReadStream(pathname)
 
@@ -57,6 +68,7 @@ function create ({ baseDir = '', baseURL } = {}) {
 
         stream.on('open', () => {
           resolve(response(200, stream, {
+            'content-length': size.toString(),
             'content-type': contentTypeLookup(extension) || contentType(extension)
           }))
         })

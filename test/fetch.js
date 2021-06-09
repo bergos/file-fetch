@@ -63,6 +63,12 @@ describe('fileFetch', () => {
     assert.strictEqual(res.headers.get('content-type').split(';').shift(), 'application/json')
   })
 
+  it('should set the content-length header', async () => {
+    const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'))
+
+    assert.strictEqual(res.headers.get('content-length'), '4')
+  })
+
   it('should read the file content with method GET', async () => {
     const res = await fileFetch('file://' + path.join(__dirname, 'support/file.txt'), {
       method: 'GET'
