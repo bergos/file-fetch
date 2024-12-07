@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "c8": "^10.1.2",
-    "is-stream": "^3.0.0",
+    "is-stream": "^4.0.1",
     "mocha": "^11.0.1",
     "stricter-standard": "^0.3.0",
     "temp": "^0.9.4"
