@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/bergos/file-fetch",
   "dependencies": {
-    "mime-types": "^2.1.35",
+    "mime-types": "^3.0.1",
     "readable-stream": "^4.4.2",
     "stream-chunks": "^1.0.0"
   },
